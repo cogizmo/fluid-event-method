@@ -4,8 +4,8 @@
     "description": "Custom Element that invokes an element's method when a specified event is received.",
     "main": "src/component.js",
     "scripts": {
-      "build": "npm run build:clean && npm run build:copy",
-      "build:clean": "node_modules/.bin/rimraf ./build && npm run build:copy",
+      "build": "npm run clean && npm run build:copy",
+      "clean": "node_modules/.bin/rimraf ./build",
       "build:copy": "cpy \"**/?(*)?(.*)\" \"../build\" --cwd=src --parents && npm run build:copy2",
       "build:copy2": "cpy \"+(test|samples)/**/*?(.*)\" \"./build\" --parents && npm run build:docs",
       "build:docs": "cpy \"!(README).md\" \"./build/doc\" && npm run build:license",
