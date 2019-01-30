@@ -1,6 +1,6 @@
 {
-    "name": "@cogizmo/cogizmo",
-    "version": "0.6.1-alpha",
+    "name": "@cogizmo/fluid-triggered-method",
+    "version": "0.1.0-alpha",
     "description": "Custom Element that invokes an element's method when a specified event is received.",
     "main": "component.mjs",
     "scripts": {
@@ -11,7 +11,7 @@
     },
     "repository": {
       "type": "git",
-      "url": "git+https://github.com/cogizmo/cogizmo.git"
+      "url": "git+https://github.com/cogizmo/fluid-triggered-method.git"
     },
     "keywords": [
       "web-components",
@@ -23,11 +23,11 @@
     "author": "Donald Lee Atkinson <fuzzicallogic@outlook.com>",
     "license": "ISC",
     "bugs": {
-      "url": "https://github.com/cogizmo/cogizmo/issues"
+      "url": "https://github.com/cogizmo/fluid-triggered-method/issues"
     },
-    "homepage": "https://github.com/cogizmo/cogizmo#README.md",
+    "homepage": "https://github.com/cogizmo/fluid-triggered-method#README.md",
     "files": [
-      "/Cogizmo?(.*)",
+      "/src/*.+(html|js|css)",
       "/LICENSE?(.*)",
       "/README?(.*)",
       "+(samples|templates|test)/**/*?(.*)"
