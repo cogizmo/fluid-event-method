@@ -32,8 +32,10 @@
       "/README?(.*)",
       "+(samples|templates|test)/**/*?(.*)"
     ],
+    "dependencies": {
+        "@cogizmo/cogizmo": "^0.6.2-alpha"
+    },
     "devDependencies": {
-        "@cogizmo/cogizmo": "^0.6.2-alpha",
         "chromedriver": "^2.45.0",
       "finalhandler": "^1.1.1",
       "geckodriver": "^1.14.1",
