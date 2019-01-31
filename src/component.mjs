@@ -1,16 +1,16 @@
 // -----------------------------------------------------------------------------
 //  ELEMENT DEFINITION
 // -----------------------------------------------------------------------------
-const _PRIVATE_ = new WeakMap();
-export default class FluidEventMethod extends Cogizmo {
+const _PROPERTIES_ = new WeakMap();
+export class FluidEventMethod extends Cogizmo {
     static get is() {   return 'fluid-event-method';   }
 
 /* Lifecycle Callbacks  - - - - - - - - - - - - - - - - - - - - - - - - - */
     constructor() {
         super();
-        _PRIVATE_.set(this, Object.create(null));
+        _PROPERTIES_.set(this, Object.create(null));
 
-        _PRIVATE_.get(this).onEvent = onEvent.bind(this);
+        _PROPERTIES_.get(this).onEvent = onEvent.bind(this);
     }
 
     connectedCallback() {
@@ -87,7 +87,7 @@ export default class FluidEventMethod extends Cogizmo {
     }
 }
 
-_PRIVATE_.set(FluidEventMethod, Object.create(null));
+_PROPERTIES_.set(FluidEventMethod, Object.create(null));
 if ("function"=== typeof FluidEventMethod.manage)
     FluidEventMethod.manage();
 else customElements.define(FluidEventMethod, FluidEventMethod.is)
@@ -158,3 +158,4 @@ function removeListeners(selector) {
         }
     }
 }
+
