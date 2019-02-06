@@ -4,10 +4,13 @@
     "description": "Custom Element that invokes an element's method when a specified event is received.",
     "main": "component.mjs",
     "scripts": {
-      "pretest": "node_modules/.bin/rimraf ./log",
-      "test": "npm run test:chrome && npm run test:firefox",
-      "test:chrome": "nightwatch --config ./test/nightwatch.json --env chrome ./test/test-module/unit.js",
-      "test:firefox": "nightwatch --config ./test/nightwatch.json --env firefox ./test/test-module/unit.js"
+        "pretest": "node_modules/.bin/rimraf ./log",
+        "test": "npm run test:chrome",
+        "test:all": "npm run test:chrome && npm run test:firefox",
+        "test:chrome": "nightwatch --config ./test/nightwatch.json --env chrome",
+        "test:firefox": "nightwatch --config ./test/nightwatch.json --env firefox",
+        "postversion": "npm publish",
+        "postpublish": "cpy \"./package.json\" \"../src\" && cd .. && npm run git:pkg && npm run git:push"
     },
     "repository": {
       "type": "git",
