@@ -1,5 +1,5 @@
 {
-    "src_folder": [
+    "src_folders": [
         "./test/unit"
     ],
     "unit_tests_mode": false,
