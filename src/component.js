@@ -87,7 +87,7 @@
             &&  super.observedAttributes instanceof Array)
                 a = super.observedAttributes;
             // Merge arrays without duplicates
-            return a.concat(attrs.filter(item => { a.indexOf(item) < 0 }));
+            return a.concat(attrs.filter(item => a.indexOf(item) < 0));
 
         }
 
