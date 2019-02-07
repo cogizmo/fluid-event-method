@@ -32,7 +32,12 @@
         }
 
         get subjects() {
-            return _PROPERTIES_.get(this).subjects || [];
+            if (!!_PROPERTIES_.get(this).subjects)
+                return _PROPERTIES_.get(this).subjects;
+            else if (!!this.parentElement)
+                return _PROPERTIES_.get(this).subjects = [this.parentElement];
+            else
+                return _PROPERTIES_.get(this).subjects = [this.parentNode.host];
         }
 
         get stop() {
