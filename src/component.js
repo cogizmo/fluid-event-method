@@ -129,9 +129,9 @@
     }
 
     _PROPERTIES_.set(FluidTriggeredMethod, Object.create(null));
-    if ("function"=== typeof FluidTriggeredMethod.manage)
+    //if ("function"=== typeof FluidTriggeredMethod.manage)
         FluidTriggeredMethod.manage();
-    else customElements.define(FluidTriggeredMethod, FluidEventMethod.is)
+    //else customElements.define(FluidTriggeredMethod, FluidEventMethod.is)
 
 /* ----------------------------- STATIC PRIVATE ----------------------------- */
 
