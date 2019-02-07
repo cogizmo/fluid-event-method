@@ -31,13 +31,13 @@
             super.disconnectedCallback();
         }
 
-        get subjects() {
-            if (!!_PROPERTIES_.get(this).subjects)
-                return _PROPERTIES_.get(this).subjects;
+        get targets() {
+            if (!!_PROPERTIES_.get(this).targets)
+                return _PROPERTIES_.get(this).targets;
             else if (!!this.parentElement)
-                return _PROPERTIES_.get(this).subjects = [this.parentElement];
+                return _PROPERTIES_.get(this).targets = [this.parentElement];
             else
-                return _PROPERTIES_.get(this).subjects = [this.parentNode.host];
+                return _PROPERTIES_.get(this).targets = [this.parentNode.host];
         }
 
         get stop() {
@@ -80,7 +80,7 @@
                 'event',
                 'select',
                 'call',
-                'subjects',
+                'targets',
                 'stop',
                 'immediate',
                 'cancel'
@@ -130,15 +130,15 @@
             }
         }
 
-        onSubjectsChanged(newValue, old) {
+        onTargetsChanged(newValue, old) {
             if (!!newValue)
-                _PROPERTIES_.get(this).subjects = [].map.call(document.querySelectorAll(newValue), (v) => {
+                _PROPERTIES_.get(this).targets = [].map.call(document.querySelectorAll(newValue), (v) => {
                     return v;
                 });
             else if (!!this.parentElement)
-                _PROPERTIES_.get(this).subjects = [this.parentElement];
+                _PROPERTIES_.get(this).targets = [this.parentElement];
             else
-                _PROPERTIES_.get(this).subjects = [this.parentNode.host];
+                _PROPERTIES_.get(this).targets = [this.parentNode.host];
         }
 
         /* Public Methods (below) - - - - - - - - - - - - - - - - - - - - - - - - */
