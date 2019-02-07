@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------------
     const _PROPERTIES_ = new WeakMap();
     class FluidTriggeredMethod extends Cogizmo {
-        static get is() {   return 'fluid-event-method';   }
+        static get is() {   return 'fluid-triggered-method';   }
 
     /* Lifecycle Callbacks  - - - - - - - - - - - - - - - - - - - - - - - - - */
         constructor() {
