@@ -31,6 +31,10 @@
             super.disconnectedCallback();
         }
 
+        get subjects() {
+            return _PROPERTIES_.get(this).subjects || [];
+        }
+
         get stop() {
             return this.hasAttribute('stop');
         }
@@ -71,7 +75,7 @@
                 'event',
                 'select',
                 'call',
-                'dispatch',
+                'subjects',
                 'stop',
                 'immediate',
                 'cancel'
@@ -108,7 +112,7 @@
 
         onSelectChanged(newValue, oldValue) {
         // Exit Condition:
-            if (!this.isAttached) return;
+            if (!this.isConnected) return;
 
         // Remove all Event Listeners
             if (oldValue && oldValue !== newValue)
@@ -119,6 +123,17 @@
             else if (this.isAttached) {
                 addListeners.call(this, newValue);
             }
+        }
+
+        onSubjectsChanged(newValue, old) {
+            if (!!newValue)
+                _PROPERTIES_.get(this).subjects = [].map.call(document.querySelectorAll(newValue), (v) => {
+                    return v;
+                });
+            else if (!!this.parentElement)
+                _PROPERTIES_.get(this).subjects = [this.parentElement];
+            else
+                _PROPERTIES_.get(this).subjects = [this.parentNode.host];
         }
 
         /* Public Methods (below) - - - - - - - - - - - - - - - - - - - - - - - - */
