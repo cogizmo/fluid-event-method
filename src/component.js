@@ -4,7 +4,7 @@
 //  ELEMENT DEFINITION
 // -----------------------------------------------------------------------------
     const _PROPERTIES_ = new WeakMap();
-    class FluidEventMethod extends Cogizmo {
+    class FluidTriggeredMethod extends Cogizmo {
         static get is() {   return 'fluid-event-method';   }
 
     /* Lifecycle Callbacks  - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -31,14 +31,49 @@
             super.disconnectedCallback();
         }
 
+        get stop() {
+            return this.hasAttribute('stop');
+        }
+
+        set stop(value) {
+            if (!!value)
+                this.setAttribute('stop', '');
+            else
+                this.removeAttribute('stop');
+        }
+
+        get immediate() {
+            return this.hasAttribute('immediate');
+        }
+
+        set immediate(value) {
+            if (!!value)
+                this.setAttribute('immediate', '');
+            else
+                this.removeAttribute('immediate');
+        }
+
+        get cancel() {
+            return this.hasAttribute('cancel');
+        }
+
+        set cancel(value) {
+            if (!!value)
+                this.setAttribute('cancel', '');
+            else
+                this.removeAttribute('cancel');
+        }
+
     /* Element Attributes - - - - - - - - - - - - - - - - - - - - - - - - - - */
         static get observedAttributes() {
             // List attributes here.
             let attrs = [
-                'on',
-                'emits',
-                'method',
-                'no-bubble',
+                'event',
+                'select',
+                'call',
+                'dispatch',
+                'stop',
+                'immediate',
                 'cancel'
             ];
 
@@ -59,7 +94,19 @@
 
         }
 
-        onSelectorChanged(newValue, oldValue) {
+        onEventChanged(newValue, oldValue) {
+        // Exit Condition:
+            if (!this.isConnected) return;
+
+            oldValue &&	(oldValue !== newValue) && removeListeners.call(this, this.on);
+            newValue &&	addListeners.call(this, this.on);
+        }
+
+        onCallChanged(newValue, old) {
+
+        }
+
+        onSelectChanged(newValue, oldValue) {
         // Exit Condition:
             if (!this.isAttached) return;
 
@@ -74,14 +121,6 @@
             }
         }
 
-        onEventNameChanged(newValue, oldValue) {
-        // Exit Condition:
-            if (!this.isAttached) return;
-
-            oldValue &&	(oldValue !== newValue) && removeListeners.call(this, this.on);
-            newValue &&	addListeners.call(this, this.on);
-        }
-
         /* Public Methods (below) - - - - - - - - - - - - - - - - - - - - - - - - */
         activate(node, method, event) {
             if (node && 'function' === typeof node[method])
@@ -89,10 +128,10 @@
         }
     }
 
-    _PROPERTIES_.set(FluidEventMethod, Object.create(null));
-    if ("function"=== typeof FluidEventMethod.manage)
-        FluidEventMethod.manage();
-    else customElements.define(FluidEventMethod, FluidEventMethod.is)
+    _PROPERTIES_.set(FluidTriggeredMethod, Object.create(null));
+    if ("function"=== typeof FluidTriggeredMethod.manage)
+        FluidTriggeredMethod.manage();
+    else customElements.define(FluidTriggeredMethod, FluidEventMethod.is)
 
 /* ----------------------------- STATIC PRIVATE ----------------------------- */
 
@@ -111,7 +150,7 @@
 
         if (this.method) {
             if (this.cancel) event.preventDefault();
-            if (this.noBubble) event.stopPropagation();
+            if (this.stop) event.stopPropagation();
             for (i = 0; i < n; i++) {
                 callRemoteMethod(nodes[i], this.method, event);
             }
