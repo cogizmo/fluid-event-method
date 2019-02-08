@@ -22,15 +22,26 @@
 
             this.setAttribute('hidden', '');
             this.setAttribute('aria-hidden', 'true');
-            if (this.on)
-                _PROPERTIES_.get(this).listen(this.on);
+
+            _PROPERTIES_.get(this).listen();
         }
 
         disconnectedCallback() {
-            if (this.on)
-                _PROPERTIES_.get(this).deafen(this.on);
+            _PROPERTIES_.get(this).deafen();
 
             super.disconnectedCallback();
+        }
+
+        get listenSelector() {
+            return _PROPERTIES_.get(this).listens;
+        }
+
+        get listens() {
+            return findNodes.call(
+                this,
+                this.listenSelector,
+                window.document
+            )
         }
 
         get method() {
@@ -83,7 +94,7 @@
             // List attributes here.
             let attrs = [
                 'handle',
-                'select',
+                'listens',
                 'method',
                 'targets',
                 'stop',
@@ -113,22 +124,17 @@
             if (!this.isConnected) return;
 
             oldValue &&	(oldValue !== newValue) && _PROPERTIES_.get(this).deafen(this.on);
-            newValue &&	_PROPERTIES_.get(this).listen(this.on);
+            newValue &&	_PROPERTIES_.get(this).listen();
         }
 
-        onSelectChanged(newValue, oldValue) {
-        // Exit Condition:
-            if (!this.isConnected) return;
+        onListensChanged(newValue, oldValue) {
+            // Remove all Event Listeners
+            if (old && old !== newValue)
+                _PROPERTIES_.get(this).deafen();
 
-        // Remove all Event Listeners
-            if (oldValue && oldValue !== newValue)
-                removeListeners.call(this, oldValue);
-
-            if (!newValue)
-                this.on = 'parent';
-            else if (this.isAttached) {
-                addListeners.call(this, newValue);
-            }
+            _PROPERTIES_.get(this).listens = newValue;
+            if (this.isConnected && !!newValue)
+                _PROPERTIES_.get(this).listen();
         }
 
         onMethodChanged(newValue, old) {
