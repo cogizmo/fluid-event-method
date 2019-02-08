@@ -4,15 +4,18 @@
 //  ELEMENT DEFINITION
 // -----------------------------------------------------------------------------
     const _PROPERTIES_ = new WeakMap();
-    class FluidEventMethod extends Cogizmo {
-        static get is() {   return 'fluid-event-method';   }
+    class FluidTriggeredMethod extends Cogizmo {
+        static get is() {   return 'fluid-triggered-method';   }
 
     /* Lifecycle Callbacks  - - - - - - - - - - - - - - - - - - - - - - - - - */
         constructor() {
             super();
             _PROPERTIES_.set(this, Object.create(null));
 
-            _PROPERTIES_.get(this).onEvent = onEvent.bind(this);
+            _PROPERTIES_.get(this).find = findNodes.bind(this);
+            _PROPERTIES_.get(this).handler = onEvent.bind(this);
+            _PROPERTIES_.get(this).listen = addListeners.bind(this);
+            _PROPERTIES_.get(this).deafen = removeListeners.bind(this);
         }
 
         connectedCallback() {
@@ -20,25 +23,101 @@
 
             this.setAttribute('hidden', '');
             this.setAttribute('aria-hidden', 'true');
-            if (this.on)
-                addListeners.call(this, this.on);
+
+            _PROPERTIES_.get(this).listen();
         }
 
         disconnectedCallback() {
-            if (this.on)
-                removeListeners.call(this, this.on);
+            _PROPERTIES_.get(this).deafen();
 
             super.disconnectedCallback();
+        }
+
+        get handle() {
+            let v = _PROPERTIES_.get(this).handle;
+            if (!v) {
+                v = 'trigger';
+                this.setAttribute('handle', 'trigger');
+            }
+            return v;
+        }
+
+        set handle(value) {
+            let v = value.toString() || 'trigger';
+            this.setAttribute('handle', v);
+        }
+
+        get listenSelector() {
+            return _PROPERTIES_.get(this).listens;
+        }
+
+        get listens() {
+            return findNodes.call(
+                this,
+                this.listenSelector,
+                window.document
+            )
+        }
+
+        get method() {
+            return _PROPERTIES_.get(this).method;
+        }
+
+        get targetSelector() {
+            return _PROPERTIES_.get(this).targets;
+        }
+
+        get targets() {
+            return findNodes.call(
+                this,
+                this.targetSelector,
+                !!this.parentElement ? this.parentElement : this.parentNode.host
+            )
+        }
+
+        get stop() {
+            return this.hasAttribute('stop');
+        }
+
+        set stop(value) {
+            if (!!value)
+                this.setAttribute('stop', '');
+            else
+                this.removeAttribute('stop');
+        }
+
+        get immediate() {
+            return this.hasAttribute('immediate');
+        }
+
+        set immediate(value) {
+            if (!!value)
+                this.setAttribute('immediate', '');
+            else
+                this.removeAttribute('immediate');
+        }
+
+        get cancel() {
+            return this.hasAttribute('cancel');
+        }
+
+        set cancel(value) {
+            if (!!value)
+                this.setAttribute('cancel', '');
+            else
+                this.removeAttribute('cancel');
         }
 
     /* Element Attributes - - - - - - - - - - - - - - - - - - - - - - - - - - */
         static get observedAttributes() {
             // List attributes here.
             let attrs = [
-                'on',
-                'emits',
+                'handle',
+                'listens',
                 'method',
-                'no-bubble',
+                'targets',
+                'stop',
+                'immediate',
                 'cancel'
             ];
 
@@ -48,7 +127,7 @@
             &&  super.observedAttributes instanceof Array)
                 a = super.observedAttributes;
             // Merge arrays without duplicates
-            return a.concat(attrs.filter(item => { a.indexOf(item) < 0 }));
+            return a.concat(attrs.filter(item => a.indexOf(item) < 0));
 
         }
 
@@ -59,27 +138,31 @@
 
         }
 
-        onSelectorChanged(newValue, oldValue) {
-        // Exit Condition:
-            if (!this.isAttached) return;
+        onHandleChanged(newValue, old) {
+            old &&	(old !== newValue) && _PROPERTIES_.get(this).deafen();
 
-        // Remove all Event Listeners
-            if (oldValue && oldValue !== newValue)
-                removeListeners.call(this, oldValue);
+            _PROPERTIES_.get(this).handle = newValue;
 
-            if (!newValue)
-                this.on = 'parent';
-            else if (this.isAttached) {
-                addListeners.call(this, newValue);
-            }
+            if (this.isConnected && !!newValue)
+                _PROPERTIES_.get(this).listen();
         }
 
-        onEventNameChanged(newValue, oldValue) {
-        // Exit Condition:
-            if (!this.isAttached) return;
+        onListensChanged(newValue, old) {
+            // Remove all Event Listeners
+            if (old && old !== newValue)
+                _PROPERTIES_.get(this).deafen();
 
-            oldValue &&	(oldValue !== newValue) && removeListeners.call(this, this.on);
-            newValue &&	addListeners.call(this, this.on);
+            _PROPERTIES_.get(this).listens = newValue;
+            if (this.isConnected && !!newValue)
+                _PROPERTIES_.get(this).listen();
+        }
+
+        onMethodChanged(newValue, old) {
+            _PROPERTIES_.get(this).method = newValue;
+        }
+
+        onTargetsChanged(newValue, old) {
+            _PROPERTIES_.get(this).targets = newValue;
         }
 
         /* Public Methods (below) - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -89,77 +172,68 @@
         }
     }
 
-    _PROPERTIES_.set(FluidEventMethod, Object.create(null));
-    if ("function"=== typeof FluidEventMethod.manage)
-        FluidEventMethod.manage();
-    else customElements.define(FluidEventMethod, FluidEventMethod.is)
+    _PROPERTIES_.set(FluidTriggeredMethod, Object.create(null));
+    if ("function"=== typeof FluidTriggeredMethod.manage)
+        FluidTriggeredMethod.manage();
+    else customElements.define(FluidTriggeredMethod, FluidEventMethod.is)
 
 /* ----------------------------- STATIC PRIVATE ----------------------------- */
 
 /* ---------------------------- PRIVATE METHODS ----------------------------- */
-    function callRemoteMethod(node, method, event) {
-        if (node && 'function' === typeof node[method])
-            node[method](event);
-    }
-
     function onEvent(event) {
-        var i, node, n, nodes;
-
-        nodes = getNodeList.call(this, this.on);
-    // Exit condition: No nodes
-        if (!nodes || !(n = nodes.length)) return;
-
         if (this.method) {
-            if (this.cancel) event.preventDefault();
-            if (this.noBubble) event.stopPropagation();
-            for (i = 0; i < n; i++) {
-                callRemoteMethod(nodes[i], this.method, event);
+            if (this.cancel)
+                event.preventDefault();
+
+            if (this.stop) {
+                if (this.immediate)
+                    event.stopImmediatePropagation();
+                else
+                    event.stopPropagation();
             }
+
+            this.targets.forEach(el => {
+                if (!!el[this.method]
+                &&  "function" === typeof el[this.method])
+                    el[this.method].call(el, event);
+            })
         }
     }
 
-    function getNodeList(selector) {
-        if (selector === 'parent')
-            return [this.parentElement];
-        else if (selector === 'document')
-            return [document];
-        else if (selector)
-            return document.querySelectorAll(selector);
-    }
+    function findNodes(selector, defaultValue) {
+        let nodes;
 
-    function addListeners(selector) {
-        var i, node, n, nodes;
-
-    // Exit condition: No selector
-        if (!selector) return;
-        nodes = getNodeList.call(this, selector);
-    // Exit condition: No nodes
-        if (!nodes || !(n = nodes.length)) return;
-
-        for (i = 0; i < n; i++) {
-            node = nodes[i];
-            if (node && node.addEventListener) {
-                node.addEventListener(this.event, this._boundEventHandler);
-            }
+        if (selector) {
+            nodes = [].map.call(
+                document.querySelectorAll(selector),
+                node => node
+            );
+            if (!nodes.length && !!defaultValue)
+                nodes = [defaultValue];
         }
+        else if (!!defaultValue)
+            nodes = [defaultValue];
+
+        return nodes;
     }
 
-    function removeListeners(selector) {
-        var i, node, n, nodes;
-
-    // Exit condition: No selector
-        if (!selector) return;
-        nodes = getNodeList.call(this, selector);
-    // Exit condition: No nodes
-        if (!nodes || !(n = nodes.length)) return;
-
-        for (i = 0; i < n; i++) {
-            node = nodes[i];
-            if (node && node.removeEventListener) {
-                node.removeEventListener(this.event, this._boundEventHandler);
-            }
-        }
+    function addListeners() {
+        let nodes = findNodes(
+            this.listenSelector,
+            window.document
+        );
+        nodes.forEach(el => {
+            el.addEventListener(this.handle, _PROPERTIES_.get(this).handler);
+        })
     }
 
-
+    function removeListeners() {
+        let nodes = findNodes(
+            this.listenSelector,
+            window.document
+        );
+        nodes.forEach(el => {
+            el.removeEventListener(this.handle, _PROPERTIES_.get(this).handler);
+        })
+    }
 }) ();
