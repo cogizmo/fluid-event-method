@@ -32,6 +32,20 @@
             super.disconnectedCallback();
         }
 
+        get handle() {
+            let v = _PROPERTIES_.get(this).handle;
+            if (!v) {
+                v = 'trigger';
+                this.setAttribute('handle', 'trigger');
+            }
+            return v;
+        }
+
+        set handle(value) {
+            let v = value.toString() || 'trigger';
+            this.setAttribute('handle', v);
+        }
+
         get listenSelector() {
             return _PROPERTIES_.get(this).listens;
         }
@@ -120,11 +134,12 @@
         }
 
         onHandleChanged(newValue, oldValue) {
-        // Exit Condition:
-            if (!this.isConnected) return;
+            old &&	(old !== newValue) && _PROPERTIES_.get(this).deafen();
 
-            oldValue &&	(oldValue !== newValue) && _PROPERTIES_.get(this).deafen(this.on);
-            newValue &&	_PROPERTIES_.get(this).listen();
+            _PROPERTIES_.get(this).handle = newValue;
+
+            if (this.isConnected && !!newValue)
+                _PROPERTIES_.get(this).listen();
         }
 
         onListensChanged(newValue, oldValue) {
