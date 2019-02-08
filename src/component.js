@@ -12,6 +12,7 @@
             super();
             _PROPERTIES_.set(this, Object.create(null));
 
+            _PROPERTIES_.get(this).find = findNodes.bind(this);
             _PROPERTIES_.get(this).handler = onEvent.bind(this);
             _PROPERTIES_.get(this).listen = addListeners.bind(this);
             _PROPERTIES_.get(this).deafen = removeListeners.bind(this);
@@ -60,6 +61,10 @@
 
         get method() {
             return _PROPERTIES_.get(this).method;
+        }
+
+        get targetSelector() {
+            return _PROPERTIES_.get(this).targets;
         }
 
         get targets() {
@@ -168,9 +173,9 @@
     }
 
     _PROPERTIES_.set(FluidTriggeredMethod, Object.create(null));
-    //if ("function"=== typeof FluidTriggeredMethod.manage)
+    if ("function"=== typeof FluidTriggeredMethod.manage)
         FluidTriggeredMethod.manage();
-    //else customElements.define(FluidTriggeredMethod, FluidEventMethod.is)
+    else customElements.define(FluidTriggeredMethod, FluidEventMethod.is)
 
 /* ----------------------------- STATIC PRIVATE ----------------------------- */
 
