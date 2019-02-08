@@ -12,7 +12,9 @@
             super();
             _PROPERTIES_.set(this, Object.create(null));
 
-            _PROPERTIES_.get(this).onEvent = onEvent.bind(this);
+            _PROPERTIES_.get(this).handler = onEvent.bind(this);
+            _PROPERTIES_.get(this).listen = addListeners.bind(this);
+            _PROPERTIES_.get(this).deafen = removeListeners.bind(this);
         }
 
         connectedCallback() {
@@ -21,14 +23,18 @@
             this.setAttribute('hidden', '');
             this.setAttribute('aria-hidden', 'true');
             if (this.on)
-                addListeners.call(this, this.on);
+                _PROPERTIES_.get(this).listen(this.on);
         }
 
         disconnectedCallback() {
             if (this.on)
-                removeListeners.call(this, this.on);
+                _PROPERTIES_.get(this).deafen(this.on);
 
             super.disconnectedCallback();
+        }
+
+        get method() {
+            return _PROPERTIES_.get(this).method;
         }
 
         get targets() {
@@ -77,9 +83,9 @@
         static get observedAttributes() {
             // List attributes here.
             let attrs = [
-                'event',
+                'handle',
                 'select',
-                'call',
+                'method',
                 'targets',
                 'stop',
                 'immediate',
@@ -103,16 +109,12 @@
 
         }
 
-        onEventChanged(newValue, oldValue) {
+        onHandleChanged(newValue, oldValue) {
         // Exit Condition:
             if (!this.isConnected) return;
 
-            oldValue &&	(oldValue !== newValue) && removeListeners.call(this, this.on);
-            newValue &&	addListeners.call(this, this.on);
-        }
-
-        onCallChanged(newValue, old) {
-
+            oldValue &&	(oldValue !== newValue) && _PROPERTIES_.get(this).deafen(this.on);
+            newValue &&	_PROPERTIES_.get(this).listen(this.on);
         }
 
         onSelectChanged(newValue, oldValue) {
@@ -128,6 +130,10 @@
             else if (this.isAttached) {
                 addListeners.call(this, newValue);
             }
+        }
+
+        onMethodChanged(newValue, old) {
+            _PROPERTIES_.get(this).method = newValue;
         }
 
         onTargetsChanged(newValue, old) {
@@ -156,69 +162,60 @@
 /* ----------------------------- STATIC PRIVATE ----------------------------- */
 
 /* ---------------------------- PRIVATE METHODS ----------------------------- */
-    function callRemoteMethod(node, method, event) {
-        if (node && 'function' === typeof node[method])
-            node[method](event);
-    }
-
     function onEvent(event) {
-        var i, node, n, nodes;
-
-        nodes = getNodeList.call(this, this.on);
-    // Exit condition: No nodes
-        if (!nodes || !(n = nodes.length)) return;
-
         if (this.method) {
-            if (this.cancel) event.preventDefault();
-            if (this.stop) event.stopPropagation();
-            for (i = 0; i < n; i++) {
-                callRemoteMethod(nodes[i], this.method, event);
+            if (this.cancel)
+                event.preventDefault();
+
+            if (this.stop) {
+                if (this.immediate)
+                    event.stopImmediatePropagation();
+                else
+                    event.stopPropagation();
             }
+
+            this.targets.forEach(el => {
+                if (!!el[this.method]
+                &&  "function" === typeof el[this.method])
+                    el[this.method].call(el, event);
+            })
         }
     }
 
-    function getNodeList(selector) {
-        if (selector === 'parent')
-            return [this.parentElement];
-        else if (selector === 'document')
-            return [document];
-        else if (selector)
-            return document.querySelectorAll(selector);
-    }
+    function findNodes(selector) {
+        let nodes;
 
-    function addListeners(selector) {
-        var i, node, n, nodes;
-
-    // Exit condition: No selector
-        if (!selector) return;
-        nodes = getNodeList.call(this, selector);
-    // Exit condition: No nodes
-        if (!nodes || !(n = nodes.length)) return;
-
-        for (i = 0; i < n; i++) {
-            node = nodes[i];
-            if (node && node.addEventListener) {
-                node.addEventListener(this.event, this._boundEventHandler);
-            }
+        if (selector) {
+            nodes = [].map.call(
+                document.querySelectorAll(selector),
+                node => node
+            );
+            if (!nodes.length && !!defaultValue)
+                nodes = [defaultValue];
         }
+        else if (!!defaultValue)
+            nodes = [defaultValue];
+
+        return nodes;
     }
 
-    function removeListeners(selector) {
-        var i, node, n, nodes;
-
-    // Exit condition: No selector
-        if (!selector) return;
-        nodes = getNodeList.call(this, selector);
-    // Exit condition: No nodes
-        if (!nodes || !(n = nodes.length)) return;
-
-        for (i = 0; i < n; i++) {
-            node = nodes[i];
-            if (node && node.removeEventListener) {
-                node.removeEventListener(this.event, this._boundEventHandler);
-            }
-        }
+    function addListeners() {
+        let nodes = findNodes(
+            this.listenSelector,
+            window.document
+        );
+        nodes.forEach(el => {
+            el.addEventListener(this.handle, _PROPERTIES_.get(this).handler);
+        })
     }
 
-
+    function removeListeners() {
+        let nodes = findNodes(
+            this.listenSelector,
+            window.document
+        );
+        nodes.forEach(el => {
+            el.removeEventListener(this.handle, _PROPERTIES_.get(this).handler);
+        })
+    }
 }) ();
