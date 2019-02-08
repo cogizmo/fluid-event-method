@@ -159,6 +159,7 @@ Returns `String<CSSSelector>`
 Gets or sets the selector on which to invoke the method and forward the event.
 Will remove listeners and add new listeners when the selector is changed.
 
+
 ### `element.targets`
 
 Returns `Array` - *ReadOnly*
