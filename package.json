@@ -1,6 +1,6 @@
 {
   "name": "@cogizmo/fluid-triggered-method",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Custom Element that invokes an element's method when a specified event is received.",
   "main": "src/component.js",
   "scripts": {
