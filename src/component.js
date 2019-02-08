@@ -200,7 +200,7 @@
         }
     }
 
-    function findNodes(selector) {
+    function findNodes(selector, defaultValue) {
         let nodes;
 
         if (selector) {
