@@ -38,12 +38,11 @@
         }
 
         get targets() {
-            if (!!_PROPERTIES_.get(this).targets)
-                return _PROPERTIES_.get(this).targets;
-            else if (!!this.parentElement)
-                return _PROPERTIES_.get(this).targets = [this.parentElement];
-            else
-                return _PROPERTIES_.get(this).targets = [this.parentNode.host];
+            return findNodes.call(
+                this,
+                this.targetSelector,
+                !!this.parentElement ? this.parentElement : this.parentNode.host
+            )
         }
 
         get stop() {
@@ -137,14 +136,7 @@
         }
 
         onTargetsChanged(newValue, old) {
-            if (!!newValue)
-                _PROPERTIES_.get(this).targets = [].map.call(document.querySelectorAll(newValue), (v) => {
-                    return v;
-                });
-            else if (!!this.parentElement)
-                _PROPERTIES_.get(this).targets = [this.parentElement];
-            else
-                _PROPERTIES_.get(this).targets = [this.parentNode.host];
+            _PROPERTIES_.get(this).targets = newValue;
         }
 
         /* Public Methods (below) - - - - - - - - - - - - - - - - - - - - - - - - */
