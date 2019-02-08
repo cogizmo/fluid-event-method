@@ -138,7 +138,7 @@
 
         }
 
-        onHandleChanged(newValue, oldValue) {
+        onHandleChanged(newValue, old) {
             old &&	(old !== newValue) && _PROPERTIES_.get(this).deafen();
 
             _PROPERTIES_.get(this).handle = newValue;
@@ -147,7 +147,7 @@
                 _PROPERTIES_.get(this).listen();
         }
 
-        onListensChanged(newValue, oldValue) {
+        onListensChanged(newValue, old) {
             // Remove all Event Listeners
             if (old && old !== newValue)
                 _PROPERTIES_.get(this).deafen();
